@@ -14,13 +14,14 @@ echo "Starting NesPie Setup..."
 # Install basic dependencies
 echo "Installing dependencies..."
 apt-get update
-apt-get install -y git lsb-release
+apt-get install -y git lsb-release xmlstarlet
 
 # if no user is specified
 if [[ -z "$__user" ]]; then
     # get the calling user from sudo env
     __user="$SUDO_USER"
 fi
+export __user
 
 USER_HOME=$(getent passwd "$__user" | cut -d: -f6)
 RPS_HOME="$USER_HOME/RetroPie-Setup"
@@ -39,10 +40,12 @@ fi
 
 # main retropie install location
 rootdir="/opt/retropie"
+export rootdir
 
 if [[ -z "$__group" ]]; then
     __group="$(id -gn "$__user")"
 fi
+export __group
 
 configdir="$rootdir/configs"
 
@@ -79,9 +82,49 @@ done
 echo "Installing lr-fceumm..."
 rp_installModule "lr-fceumm"
 
+# Correct the NES ROM path in EmulationStation config
+ES_SYSTEM_CONFIG="/etc/emulationstation/es_systems.cfg"
+echo "Ensuring correct NES ROM path..."
+xmlstarlet ed --inplace --update "/systemList/system[name='nes']/path" --value "$USER_HOME/RetroPie/roms/nes" "$ES_SYSTEM_CONFIG"
+
+# Remove the 'retropie' system from es_systems.cfg
+echo "Removing 'retropie' system from EmulationStation config..."
+xmlstarlet ed --inplace --delete "/systemList/system[name='retropie']" "$ES_SYSTEM_CONFIG"
+
 echo "Enabling autostart..."
 rp_installModule "autostart"
 enable_autostart
+
+echo "Configuring EmulationStation settings..."
+ES_SETTINGS_DIR="$USER_HOME/.emulationstation"
+ES_SETTINGS_CFG="$ES_SETTINGS_DIR/es_settings.cfg"
+
+mkdir -p "$ES_SETTINGS_DIR"
+touch "$ES_SETTINGS_CFG"
+
+# Ensure the settings file is a valid XML document for xmlstarlet
+if ! grep -q "<settings>" "$ES_SETTINGS_CFG"; then
+    echo "<settings></settings>" > "$ES_SETTINGS_CFG"
+fi
+
+chown -R "$__user":"$__group" "$ES_SETTINGS_DIR"
+
+# Helper function to set a value in es_settings.cfg using xmlstarlet
+update_es_setting() {
+    # $1=file, $2=type (string/bool), $3=name, $4=value
+    # Delete the node if it exists to ensure a clean state
+    xmlstarlet ed --inplace --delete "/settings/${2}[@name='${3}']" "$1"
+    # Add the node with its attributes
+    xmlstarlet ed --inplace \
+        --subnode "/settings" --type elem -n "${2}" \
+        --insert "/settings/${2}[last()]" --type attr -n "name" --value "${3}" \
+        --insert "/settings/${2}[@name='${3}']" --type attr -n "value" --value "${4}" \
+        "$1"
+}
+
+update_es_setting "$ES_SETTINGS_CFG" "string" "UIMode" "kiosk"
+update_es_setting "$ES_SETTINGS_CFG" "string" "StartupSystem" "nes"
+update_es_setting "$ES_SETTINGS_CFG" "bool" "StartOnGamelist" "true"
 
 echo "NesPie Setup Complete!"
 echo "Reboot your system to start EmulationStation."
