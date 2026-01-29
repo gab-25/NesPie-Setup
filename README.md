@@ -8,6 +8,8 @@ It strips away the bloat and installs only the essentials:
 
 ## Installation
 
+**Important System Recommendation:** For optimal performance and to utilize pre-compiled binaries (significantly reducing installation time), it is highly recommended to use **Raspberry Pi OS (Legacy, 32-bit) based on Debian Bookworm**.
+
 1. Clone this repository:
    ```bash
    git clone https://github.com/gab-25/NesPie-Setup.git
