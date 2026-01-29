@@ -42,17 +42,9 @@ if [[ -z "$__group" ]]; then
     __group="$(id -gn "$__user")"
 fi
 
-home="$(eval echo ~$__user)"
-datadir="$home/RetroPie"
-biosdir="$datadir/BIOS"
-romdir="$datadir/roms"
-emudir="$rootdir/emulators"
 configdir="$rootdir/configs"
-scriptdir="$RPS_HOME"
 
-__logdir="$scriptdir/logs"
-__tmpdir="$scriptdir/tmp"
-__builddir="$__tmpdir/build"
+__builddir="$scriptdir/tmp/build"
 
 # source the scripts with the needed functions
 source "$scriptdir/scriptmodules/system.sh"
