@@ -12,7 +12,7 @@ if [[ "$(id -u)" -ne 0 ]]; then
     exit 1
 fi
 
-echo "Starting NesPie Setup..."
+echo "Starting SnesPie Setup..."
 
 # Install basic dependencies
 echo "Installing dependencies..."
@@ -82,8 +82,8 @@ for package in $core_packages; do
     rp_installModule "$package"
 done
 
-echo "Installing lr-fceumm..."
-rp_installModule "lr-fceumm"
+echo "Installing lr-snes9x..."
+rp_installModule "lr-snes9x"
 
 echo "Configuring EmulationStation settings..."
 ES_SYSTEMS_DIR="/etc/emulationstation"
@@ -102,5 +102,5 @@ echo "Enabling autostart..."
 rp_installModule "autostart"
 enable_autostart
 
-echo "NesPie Setup Complete!"
+echo "SnesPie Setup Complete!"
 echo "Reboot your system to start EmulationStation."
