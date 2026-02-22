@@ -1,16 +1,19 @@
 # SnesPie Setup
 
-**SnesPie** is a minimalist automated installer for setting up a dedicated SNES (Super Nintendo Entertainment System) emulation station on Raspberry Pi (or Debian-based systems) using RetroPie.
+**SnesPie** is a minimalist setup script for configuring a dedicated SNES (Super Nintendo Entertainment System) emulation station using **Batocera Linux**.
 
-It strips away the bloat and installs only the essentials:
-- **Core RetroPie System** (RetroArch, EmulationStation)
-- **SNES Emulator** (`lr-snes9x`)
+It configures Batocera to use only the SNES system with:
+- **SNES Emulator** (`snes9x` via libretro)
+- **Kiosk UI mode** (hides settings menus from end users)
+- **SNES as the default system** at startup
+
+## Requirements
+
+- A device with **Batocera Linux** already installed (see [batocera.linux.com](https://batocera.linux.com) for installation instructions).
 
 ## Installation
 
-**Important System Recommendation:** For optimal performance and to utilize pre-compiled binaries (significantly reducing installation time), it is highly recommended to use **Raspberry Pi OS (Legacy, 32-bit) based on Debian Bookworm**.
-
-1. Clone this repository:
+1. Clone this repository (on your Batocera device):
    ```bash
    git clone https://github.com/gab-25/SnesPie-Setup.git
    cd SnesPie-Setup
@@ -18,22 +21,20 @@ It strips away the bloat and installs only the essentials:
 
 2. Make the script executable:
    ```bash
-   chmod +x snespie_setup.sh
+   chmod +x batocera_setup.sh
    ```
 
 3. Run the setup script:
    ```bash
-   sudo ./snespie_setup.sh
+   sudo ./batocera_setup.sh
    ```
 
 ## What it does
-The `snespie_setup.sh` script performs the following steps automatically:
-- Installs necessary system dependencies (`git`, `lsb-release`).
-- Clones the official `RetroPie-Setup` repository.
-- Installs the RetroPie "Core" packages (required for EmulationStation and basic functionality).
-- Installs **only** the `lr-snes9x` SNES emulator.
-- Enables autostart to boot directly into EmulationStation.
+The `batocera_setup.sh` script performs the following steps automatically:
+- Writes `configs/batocera.conf` to `/userdata/system/batocera.conf`, setting SNES as the default system and enabling kiosk mode.
+- Copies `configs/es_systems.cfg` to `/userdata/system/configs/emulationstation/es_systems.cfg`, restricting EmulationStation to display only the SNES system.
+- Creates the `/userdata/roms/snes/` directory for your ROM files.
 
 ## Usage
-After installation is complete, reboot your system. EmulationStation will start automatically.
-You can add your SNES ROMs to `~/RetroPie/roms/snes/`.
+After running the script, reboot your device. Batocera will start directly into the SNES system.
+Add your SNES ROMs to `/userdata/roms/snes/`.
